@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "manim-exts"
+version = "0.1.0"
+description = "Some extra added manim functionality"
+readme = "README.md"
+authors = [{ name = "Rowan Torbitzky-Lane", email="rowan.a.tl@protonmail.com" }]
+license = { file = "LICENSE" }
+requires-python = ">=3.13"
+dependencies = [
+    "manim>=0.19.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/RowanTL/manim_exts"
+Issues = "https://github.com/RowanTL/manim_exts/issues"
