@@ -28,6 +28,16 @@ class AugmentedMatrix(VGroup):
         self.right = right
         self.divider = line
 
+    def color_row(self, row_index, color):
+        """Color the given row (0-indexed) across both sides of the augmented matrix."""
+        left_rows = self.left.get_rows()
+        right_rows = self.right.get_rows()
+
+        if row_index < len(left_rows):
+            left_rows[row_index].set_color(color)
+        if row_index < len(right_rows):
+            right_rows[row_index].set_color(color)
+
 
 class DoubleArrow3D(VGroup):
     def __init__(
