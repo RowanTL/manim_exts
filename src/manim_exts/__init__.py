@@ -3,40 +3,67 @@ __version__ = "0.1.0"
 from manim import *
 import numpy as np
 
+
 class AugmentedMatrix(VGroup):
-    def __init__(self, left_matrix, right_matrix, **kwargs):
+    def __init__(
+        self,
+        mat,
+        sep_col=-1,
+        line_stroke_width: int | float = 2,
+        matrix_args: dict = {},
+        line_args: dict = {},
+        **kwargs,
+    ):
+        """
+        A custom augmented matrix class. No need to pass the `start` and `end` parameters
+        to line_args (they are calculated automatically).
+
+        parameters:
+            mat (Any 2D python sequence): The matrix to be created.
+            sep_col (int, default=-1): The column to place the augmented matrix separator to the left of.
+                Accepts negative indices.
+            line_stroke_width (int | float, default=2): The stroke_width of the separator line. Made this a parameter
+                because it may be commonly modified.
+            matrix_args (dict): Any extra args to pass to the matrix constructor.
+            line_args (dict): Any extra args to pass to the line constructor. `start` and `end` args are not mandatory.
+            **kwargs: VGroup constructor args.
+        """
         super().__init__(**kwargs)
 
-        # Create the two parts of the augmented matrix
-        left = Matrix(left_matrix)
-        right = Matrix(right_matrix)
-        line = Line(UP, DOWN).scale(max(left.height, right.height) / 2)
+        self.matrix: Matrix = Matrix(mat, **matrix_args)
+        col: VGroup = self.matrix.get_columns()[sep_col]
+        # now have the center point of the line
+        line_center = col.get_center()
+        # move line_center to correct x coordinate
+        line_center[0] -= self.matrix.h_buff / 2
+        # grab half the height so can add to center later
+        # print(self.matrix.get_brackets()[0].height)
+        temp_bracket = self.matrix.get_brackets()[0]
+        bracket_v_delta = temp_bracket.height / 2
+        # copy center matrix and subtract height for starting position
+        line_start = line_center.copy()
+        line_start[1] -= bracket_v_delta
+        # copy center matrix and add height for end position
+        line_end = line_center.copy()
+        line_end[1] += bracket_v_delta
+        self.line = Line(
+            start=line_start,
+            end=line_end,
+            stroke_width=line_stroke_width,
+            **line_args,
+        )
 
-        # Combine the parts with a small buffer
-        augmented = VGroup(left, line, right).arrange(RIGHT, buff=0.2)
+        self.add(self.matrix, self.line)
 
-        # Add large brackets around the whole augmented matrix
-        brackets = MathTex(r"\left[", r"\right]").scale(2)
-        brackets[0].next_to(augmented, LEFT, buff=0.1)
-        brackets[1].next_to(augmented, RIGHT, buff=0.1)
+    # def color_row(self, row_index, color):
+    #     """Color the given row (0-indexed) across both sides of the augmented matrix."""
+    #     left_rows = self.left.get_rows()
+    #     right_rows = self.right.get_rows()
 
-        # Combine everything
-        self.add(brackets[0], augmented, brackets[1])
-
-        # Optionally store attributes for later access
-        self.left = left
-        self.right = right
-        self.divider = line
-
-    def color_row(self, row_index, color):
-        """Color the given row (0-indexed) across both sides of the augmented matrix."""
-        left_rows = self.left.get_rows()
-        right_rows = self.right.get_rows()
-
-        if row_index < len(left_rows):
-            left_rows[row_index].set_color(color)
-        if row_index < len(right_rows):
-            right_rows[row_index].set_color(color)
+    #     if row_index < len(left_rows):
+    #         left_rows[row_index].set_color(color)
+    #     if row_index < len(right_rows):
+    #         right_rows[row_index].set_color(color)
 
 
 class DoubleArrow3D(VGroup):
@@ -75,4 +102,3 @@ class DoubleArrow3D(VGroup):
         arrow1 = Arrow3D(start=start_cut, end=end, color=color, **kwargs)
         arrow2 = Arrow3D(start=end_cut, end=start, color=color, **kwargs)
         self.add(arrow1, arrow2)
-
